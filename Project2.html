@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: changeBackground 15s infinite alternate;
+        }
+        @keyframes changeBackground {
+            0% {
+                background-color: #ffb3b3; 
+            }
+            25% {
+                background-color: #ffeb99; 
+            }
+            50% {
+                background-color: #b3d9ff; 
+            }
+            75% {
+                background-color: #d9b3ff; 
+            }
+            100% {
+                background-color: #ffb3b3; 
+            }
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); 
+        }
+        .search-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1rem;
+            width: 200px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #ffeb99;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #ffcc66; 
+        }
+        .weather-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Weather info styling */
+        .weather-info {
+            margin-top: 20px;
+        }
+
+        .weather-info h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #333;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .weather-info p {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        footer a {
+            color: #ffeb99;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: #ffcc66;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            input[type="text"] {
+                width: 150px;
+            }
+
+            button {
+                font-size: 0.9rem;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Weather Information</h1>
+    </header>
+    <div class="search-container">
+        <input type="text" id="cityInput" placeholder="Enter city names (e.g. London, Paris, New York)" />
+        <button onclick="searchWeather()">Search</button>
+    </div>
+
+    <div id="weather-results">
+    </div>
+
+    <footer>
+        <p>Search|London, Paris, New York, Tokyo
+            
+        </p>
+    </footer>
+
+    <script>
+        const apiKey = "2483ef8bfe6862271e4b469a086eca6d";
+        const weatherResults = document.getElementById("weather-results");
+        async function fetchWeather(city) {
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data.cod !== 200) {
+                    throw new Error(data.message);
+                }
+
+                return data;
+            } catch (error) {
+                alert("Error: " + error.message);
+                return null;
+            }
+        }
+        function displayWeather(data) {
+            if (!data) return;
+
+            const weatherContainer = document.createElement("div");
+            weatherContainer.classList.add("weather-container");
+
+            weatherContainer.innerHTML = `
+                <div class="weather-info">
+                    <h2>${data.name}, ${data.sys.country}</h2>
+                    <p><strong>Temperature:</strong> ${data.main.temp}°C</p>
+                    <p><strong>Weather:</strong> ${data.weather[0].description}</p>
+                    <p><strong>Humidity:</strong> ${data.main.humidity}%</p>
+                    <p><strong>Wind Speed:</strong> ${data.wind.speed} m/s</p>
+                </div>
+            `;
+
+            weatherResults.appendChild(weatherContainer);
+        }
+        async function searchWeather() {
+            const cities = document.getElementById("cityInput").value.split(",").map(city => city.trim()).slice(0, 5);
+            weatherResults.innerHTML = "";
+
+            for (let city of cities) {
+                const weatherData = await fetchWeather(city);
+                displayWeather(weatherData);
+            }
+        }
+    </script>
+
+</body>
+</html>
